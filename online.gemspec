@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.description   = %q{A simple, and fast "who is online right now" tracker that uses redis and quantized time slices to keep
 things fast and lightweight.}
   spec.summary       = %q{A simple, and fast "who is online right now" tracker}
-  spec.homepage      = ""
+  spec.homepage      = "https://github.com/nullstyle/online"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)
