@@ -8,8 +8,9 @@ Gem::Specification.new do |spec|
   spec.version       = Online::VERSION
   spec.authors       = ["Scott Fleckenstein"]
   spec.email         = ["nullstyle@gmail.com"]
-  spec.description   = %q{TODO: Write a gem description}
-  spec.summary       = %q{TODO: Write a gem summary}
+  spec.description   = %q{A simple, and fast "who is online right now" tracker that uses redis and quantized time slices to keep
+things fast and lightweight.}
+  spec.summary       = %q{A simple, and fast "who is online right now" tracker}
   spec.homepage      = ""
   spec.license       = "MIT"
 
