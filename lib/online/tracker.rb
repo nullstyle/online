@@ -11,7 +11,6 @@ module Online
     # @param  redis [Redis] the redis client to use
     # @param  online_expiration_time=180 [Fixnum] The amount of inactivity in seconds in which to consider an id 'offline' 
     # 
-    # @return [type] [description]
     def initialize(redis, online_expiration_time=180)
       @online_expiration_time = 180
       @redis = redis
@@ -20,6 +19,11 @@ module Online
       @active_bucket_count = (@online_expiration_time.to_f / @slice_size).ceil
     end
 
+
+    # 
+    # Marks the provided id as online
+    # @param  id [String] the id to mark online
+    # 
     def set_online(id)
       slice_time = active_bucket_times.first
       key        = bucket_key(slice_time)
@@ -29,24 +33,54 @@ module Online
         @redis.sadd(key, id)
         @redis.expireat key, expires_at
       end
+
+      true
     end
 
+
+    # 
+    # Marks the provided id as offline.  This method removes the id
+    # from all active buckets using a pipelined call.
+    # 
+    # @param  id [String] the id to mark offline
+    # 
     def set_offline(id)
       @redis.pipelined do
         active_bucket_keys.each{|k| @redis.srem key, id }
       end
+      true
     end
 
+
+    # 
+    # Queries redis to see if the provided id has been seen in the last
+    # `online_expiration_time` seconds.
+    #  
+    # @param  id [String] the id to query upon
+    # 
+    # @return [Boolean] true if online, false if not
     def online?(id)
       @redis.pipelined do
         active_bucket_keys.each{|k| @redis.sismember k, id }
       end.any?
     end
 
+    # 
+    # Queries redis to see if the provided id has _not_ been seen in the last
+    # `online_expiration_time` seconds.
+    #  
+    # @param  id [String] the id to query upon
+    # 
+    # @return [Boolean] true if offline, false if not
     def offline?(id)
       !online?(id)
     end
 
+
+    # 
+    # Returns an array of all online ids
+    # 
+    # @return [Array<String>] the online ids
     def all_online
       @redis.pipelined do
         active_bucket_keys.each{|k| @redis.smembers key }
