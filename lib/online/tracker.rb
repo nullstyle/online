@@ -47,6 +47,12 @@ module Online
       !online?(id)
     end
 
+    def all_online
+      @redis.pipelined do
+        active_bucket_keys.each{|k| @redis.smembers key }
+      end.inject(&:|)
+    end
+
     private
     # 
     # Returns a list of keys that represent the sets of online users
